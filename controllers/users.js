@@ -4,10 +4,17 @@ const User = require('../model/user');
 const { generateJWT } = require('../helpers/jwt');
 
 const getUsers = async (req, res) => {
-    users = await User.find({}, 'name password email');
+    const from = req.query.from || 0;
+    const [ users, totalUsers ] = await Promise.all([
+        User.find({}, 'name password email')
+            .skip(from)
+            .limit(5),
+        User.countDocuments()
+    ]);
     res.json({
-        users: users
-    })
+        users: users,
+        totalUsers: totalUsers
+    });
 }
 
 const postUsers = async (req, res = response) => {
